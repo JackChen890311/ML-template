@@ -48,7 +48,7 @@ def test(model, test_loader, loss_fn):
 
 
 def main():
-    model = MyModel(C.in_size, C.latent_size, C.hidden_dims)
+    model = MyModel()
     model = model.to(C.device)
     dataloaders = MyDataloader()
     dataloaders.setup_all()
@@ -68,7 +68,7 @@ def main():
     train_losses = []
     valid_losses = []
     p_cnt = 0
-    best_valid_loss = 1e5
+    best_valid_loss = 1e10
 
     for e in tqdm(range(1,1+C.epochs)):
         train_loss = train(model, dataloaders.train_loader, optimizer, loss_fn)
@@ -88,7 +88,7 @@ def main():
                 print('Early Stopping at epoch',e)
                 break
         
-        if e % 100 == 0:
+        if e % C.verbose == 0:
             print('Plotting Loss at epoch', e)
             x_axis = list(range(e))
             plt.plot(x_axis, train_losses, label='Train')
@@ -117,6 +117,9 @@ def test(path):
     model.eval()
     dataloaders = MyDataloader()
     dataloaders.setup_test()
+    loss_fn = torch.nn.MSELoss()
+    loss = test(model, dataloaders.test_loader, loss_fn)
+    return loss
 
 
 if __name__ == '__main__':

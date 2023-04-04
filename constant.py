@@ -10,6 +10,7 @@ class CONSTANT():
         self.milestones = [50,500,5000]
         self.gamma = 0.5
         self.patience = 50
+        self.verbose = 100
         self.device = device('cuda:0')
 
         self.data_path = 'data/training'
