@@ -1,0 +1,124 @@
+import os
+import time
+import torch
+import pickle as pk
+import matplotlib.pyplot as plt
+from tqdm import tqdm
+
+from model import MyModel
+from dataloader import MyDataloader
+from constant import CONSTANT
+
+C = CONSTANT()
+
+def train(model, train_loader, optimizer, loss_fn):
+    model.train()
+    total_loss = 0
+    for x,y in train_loader:
+        x = x.to(C.device)
+        optimizer.zero_grad()
+        result = model(x)
+        loss = loss_fn(x,result)
+        loss.backward()
+        optimizer.step()
+        total_loss += loss.item()
+    return total_loss/len(train_loader)
+
+
+def valid(model, valid_loader, loss_fn):
+    model.eval()
+    total_loss = 0
+    for x,y in valid_loader:
+        x = x.to(C.device)
+        result = model(x)
+        loss = loss_fn(x,result)
+        total_loss += loss.item()
+    return total_loss/len(valid_loader)
+
+
+def test(model, test_loader, loss_fn):
+    model.eval()
+    total_loss = 0
+    for x,y in test_loader:
+        x = x.to(C.device)
+        result = model(x)
+        loss = loss_fn(x,result)
+        total_loss += loss.item()
+    return total_loss/len(test_loader)
+
+
+def main():
+    model = MyModel(C.in_size, C.latent_size, C.hidden_dims)
+    model = model.to(C.device)
+    dataloaders = MyDataloader()
+    dataloaders.setup_all()
+    loss_fn = torch.nn.MSELoss()
+    optimizer = torch.optim.Adam(model.parameters(), lr=C.lr)
+    scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, milestones = C.milestones, gamma = C.gamma)
+
+    start_time = str(time.strftime("%Y-%m-%d~%H:%M:%S", time.localtime()))
+    if not os.path.exists('output'):
+        os.mkdir('output')
+    os.mkdir('output/%s'%start_time)
+
+    with open('output/%s/pata.txt'%start_time, 'w') as f:
+        for key, value in vars(C).items():
+            f.write(f"{key}: {value}\n")
+
+    train_losses = []
+    valid_losses = []
+    p_cnt = 0
+    best_valid_loss = 1e5
+
+    for e in tqdm(range(1,1+C.epochs)):
+        train_loss = train(model, dataloaders.train_loader, optimizer, loss_fn)
+        valid_loss = valid(model, dataloaders.valid_loader, loss_fn)
+        scheduler.step()
+        train_losses.append(train_loss)
+        valid_losses.append(valid_loss)
+        print('Epoch = ',e, 'Train / Valid Loss = %f / %f'%(train_loss,valid_loss))
+       
+        if valid_loss < best_valid_loss:
+            p_cnt = 0
+            best_valid_loss = valid_loss
+            torch.save(model.state_dict(), 'output/%s/model'%start_time)
+        else:
+            p_cnt += 1
+            if p_cnt == C.patience:
+                print('Early Stopping at epoch',e)
+                break
+        
+        if e % 100 == 0:
+            print('Plotting Loss at epoch', e)
+            x_axis = list(range(e))
+            plt.plot(x_axis, train_losses, label='Train')
+            plt.plot(x_axis, valid_losses, label='Valid')
+            plt.legend()
+            plt.savefig('output/%s/loss.png'%start_time)
+            plt.clf()
+
+            plt.plot(x_axis[-100:], train_losses[-100:], label='Train')
+            plt.plot(x_axis[-100:], valid_losses[-100:], label='Valid')
+            plt.legend()
+            plt.savefig('output/%s/loss_last100.png'%start_time)
+            plt.clf()
+
+        with open('output/%s/losses.pickle'%start_time, 'wb') as file:
+            pk.dump([train_losses, valid_losses, best_valid_loss], file)
+        
+    print('Ending at epoch',e, '. Best valid loss:',best_valid_loss)
+    with open('output/%s/pata.txt'%start_time, 'a') as f:
+        f.write(f"Ending at epoch {e}. Best valid loss: {best_valid_loss}\n")
+
+def test(path):
+    model = MyModel()
+    model.load_state_dict(torch.load(path))
+    model = model.to(C.device)
+    model.eval()
+    dataloaders = MyDataloader()
+    dataloaders.setup_test()
+
+
+if __name__ == '__main__':
+    main()
+
