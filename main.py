@@ -99,7 +99,7 @@ def main():
     with open('output/%s/pata.txt'%start_time, 'a') as f:
         f.write(f"Ending at epoch {e}. Best valid loss: {best_valid_loss}\n")
 
-def test(path):
+def test_model(path):
     model = MyModel()
     model.load_state_dict(torch.load(path))
     model = model.to(C.device)
