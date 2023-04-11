@@ -18,22 +18,11 @@ def train(model, train_loader, optimizer, loss_fn):
         x = x.to(C.device)
         optimizer.zero_grad()
         result = model(x)
-        loss = loss_fn(x,result)
+        loss = loss_fn(y,result)
         loss.backward()
         optimizer.step()
         total_loss += loss.item()
     return total_loss/len(train_loader)
-
-
-def valid(model, valid_loader, loss_fn):
-    model.eval()
-    total_loss = 0
-    for x,y in valid_loader:
-        x = x.to(C.device)
-        result = model(x)
-        loss = loss_fn(x,result)
-        total_loss += loss.item()
-    return total_loss/len(valid_loader)
 
 
 def test(model, test_loader, loss_fn):
@@ -42,7 +31,7 @@ def test(model, test_loader, loss_fn):
     for x,y in test_loader:
         x = x.to(C.device)
         result = model(x)
-        loss = loss_fn(x,result)
+        loss = loss_fn(y,result)
         total_loss += loss.item()
     return total_loss/len(test_loader)
 
@@ -72,11 +61,11 @@ def main():
 
     for e in tqdm(range(1,1+C.epochs)):
         train_loss = train(model, dataloaders.train_loader, optimizer, loss_fn)
-        valid_loss = valid(model, dataloaders.valid_loader, loss_fn)
+        valid_loss = test(model, dataloaders.valid_loader, loss_fn)
         scheduler.step()
         train_losses.append(train_loss)
         valid_losses.append(valid_loss)
-        print('Epoch = ',e, 'Train / Valid Loss = %f / %f'%(train_loss,valid_loss))
+        print(f'Epoch = {e}, Train / Valid Loss = {train_loss} / {valid_loss}')
        
         if valid_loss < best_valid_loss:
             p_cnt = 0
@@ -85,7 +74,7 @@ def main():
         else:
             p_cnt += 1
             if p_cnt == C.patience:
-                print('Early Stopping at epoch',e)
+                print('Early Stopping at epoch', e)
                 break
         
         if e % C.verbose == 0:
@@ -106,7 +95,7 @@ def main():
         with open('output/%s/losses.pickle'%start_time, 'wb') as file:
             pk.dump([train_losses, valid_losses, best_valid_loss], file)
         
-    print('Ending at epoch',e, '. Best valid loss:',best_valid_loss)
+    print(f'Ending at epoch {e}. Best valid loss: {best_valid_loss}')
     with open('output/%s/pata.txt'%start_time, 'a') as f:
         f.write(f"Ending at epoch {e}. Best valid loss: {best_valid_loss}\n")
 
