@@ -65,7 +65,7 @@ def main():
         scheduler.step()
         train_losses.append(train_loss)
         valid_losses.append(valid_loss)
-        print(f'Epoch = {e}, Train / Valid Loss = {train_loss} / {valid_loss}')
+        print(f'Epoch = {e}, Train / Valid Loss = {round(train_loss, 6)} / {round(valid_loss, 6)}')
        
         if valid_loss < best_valid_loss:
             p_cnt = 0
@@ -95,9 +95,9 @@ def main():
         with open('output/%s/losses.pickle'%start_time, 'wb') as file:
             pk.dump([train_losses, valid_losses, best_valid_loss], file)
         
-    print(f'Ending at epoch {e}. Best valid loss: {best_valid_loss}')
+    print(f'Ending at epoch {e}. Best valid loss: {round(best_valid_loss, 6)}')
     with open('output/%s/pata.txt'%start_time, 'a') as f:
-        f.write(f"Ending at epoch {e}. Best valid loss: {best_valid_loss}\n")
+        f.write(f"Ending at epoch {e}. Best valid loss: {round(best_valid_loss, 6)}\n")
 
 def test_model(path):
     model = MyModel()
