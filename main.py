@@ -40,10 +40,10 @@ def main():
     model = MyModel()
     model = model.to(C.device)
     dataloaders = MyDataloader()
-    dataloaders.setup_all()
+    dataloaders.setup(['train', 'valid', 'test'])
     loss_fn = torch.nn.MSELoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=C.lr)
-    scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, milestones = C.milestones, gamma = C.gamma)
+    scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, milestones=C.milestones, gamma=C.gamma)
 
     start_time = str(time.strftime("%Y-%m-%d~%H:%M:%S", time.localtime()))
     if not os.path.exists('output'):
@@ -70,7 +70,7 @@ def main():
         if valid_loss < best_valid_loss:
             p_cnt = 0
             best_valid_loss = valid_loss
-            torch.save(model.state_dict(), 'output/%s/model'%start_time)
+            torch.save(model.state_dict(), 'output/%s/model.pt'%start_time)
         else:
             p_cnt += 1
             if p_cnt == C.patience:
@@ -98,6 +98,8 @@ def main():
     print(f'Ending at epoch {e}. Best valid loss: {round(best_valid_loss, 6)}')
     with open('output/%s/pata.txt'%start_time, 'a') as f:
         f.write(f"Ending at epoch {e}. Best valid loss: {round(best_valid_loss, 6)}\n")
+        f.write('===== Model Structure =====')
+        f.write('\n'+str(model)+'\n')
 
 def test_model(path):
     model = MyModel()
@@ -105,7 +107,7 @@ def test_model(path):
     model = model.to(C.device)
     model.eval()
     dataloaders = MyDataloader()
-    dataloaders.setup_test()
+    dataloaders.setup(['test'])
     loss_fn = torch.nn.MSELoss()
     loss = test(model, dataloaders.test_loader, loss_fn)
     return loss
