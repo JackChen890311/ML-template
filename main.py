@@ -15,10 +15,10 @@ def train(model, train_loader, optimizer, loss_fn):
     model.train()
     total_loss = 0
     for x,y in train_loader:
-        x = x.to(C.device)
+        x,y = x.to(C.device),y.to(C.device)
         optimizer.zero_grad()
-        result = model(x)
-        loss = loss_fn(y,result)
+        yhat = model(x)
+        loss = loss_fn(yhat,y)
         loss.backward()
         optimizer.step()
         total_loss += loss.item()
@@ -29,9 +29,9 @@ def test(model, test_loader, loss_fn):
     model.eval()
     total_loss = 0
     for x,y in test_loader:
-        x = x.to(C.device)
-        result = model(x)
-        loss = loss_fn(y,result)
+        x,y = x.to(C.device),y.to(C.device)
+        yhat = model(x)
+        loss = loss_fn(yhat,y)
         total_loss += loss.item()
     return total_loss/len(test_loader)
 
