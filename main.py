@@ -64,7 +64,7 @@ def test_model(modelPath):
 
     # Add your own metrics here
     loss_fn = torch.nn.MSELoss()
-    loss = test(model, dataloaders.test_loader, loss_fn)
+    loss = test(model, dataloaders.loader['test'], loss_fn)
     return loss
 
 
