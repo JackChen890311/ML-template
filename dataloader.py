@@ -22,7 +22,7 @@ class Preprocess():
 
 class MyDataset(Dataset):
     # Implement your dataset here
-    def __init__(self, data_pat, preprocess):
+    def __init__(self, data_path, preprocess):
         # Initialize your dataset object
         pass
 
