@@ -13,10 +13,10 @@ from constant import CONSTANT
 C = CONSTANT()
 
 
-def train(model, train_loader, optimizer, loss_fn):
+def train(model, loader, optimizer, loss_fn):
     model.train()
     total_loss = 0
-    for x,y in train_loader:
+    for x,y in loader:
         optimizer.zero_grad()
         x,y = x.to(C.device),y.to(C.device)
         yhat = model(x)
@@ -25,19 +25,19 @@ def train(model, train_loader, optimizer, loss_fn):
         optimizer.step()
         total_loss += loss.item()
         # Add your own metrics here
-    return total_loss/len(train_loader)
+    return total_loss/len(loader)
 
 
-def test(model, test_loader, loss_fn):
+def test(model, loader, loss_fn):
     model.eval()
     total_loss = 0
-    for x,y in test_loader:
+    for x,y in loader:
         x,y = x.to(C.device),y.to(C.device)
         yhat = model(x)
         loss = loss_fn(yhat,y)
         total_loss += loss.item()
         # Add your own metrics here
-    return total_loss/len(test_loader)
+    return total_loss/len(loader)
 
 
 def myplot(config):
