@@ -1,10 +1,28 @@
+import torchvision.transforms as T
 from torch.utils.data import DataLoader, Dataset
 
 from constant import CONSTANT
 
+
+class Preprocess():
+    def __init__(self):
+        self.train_pre = T.Compose([
+            T.Resize([256, 256]),
+            T.RandomCrop(224),
+            T.ToTensor(),
+            T.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
+        ])
+
+        self.test_pre = T.Compose([
+            T.Resize([224, 224]),
+            T.ToTensor(),
+            T.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
+        ])
+
+
 class MyDataset(Dataset):
     # Implement your dataset here
-    def __init__(self, data_path):
+    def __init__(self, data_pat, preprocess):
         # Initialize your dataset object
         pass
 
@@ -21,30 +39,25 @@ class MyDataloader():
     def __init__(self):
         super().__init__()
         self.C = CONSTANT()
+        self.P = Preprocess()
+        self.loader = {}
 
     def setup(self, types):
-        flag = False
         print('Loading Data...')
-        if 'train' in types:
-            flag = True
-            self.train_dataset = MyDataset(self.C.data_path)
-            self.train_loader = self.loader_prepare(self.train_dataset, True)
-            del self.train_dataset
 
-        if 'valid' in types:
-            flag = True
-            self.valid_dataset = MyDataset(self.C.data_path_valid)
-            self.valid_loader = self.loader_prepare(self.valid_dataset, True)
-            del self.valid_dataset
-
-        if 'test' in types:
-            flag = True
-            self.test_dataset = MyDataset(self.C.data_path_test) 
-            self.test_loader = self.loader_prepare(self.test_dataset, True)
-            del self.test_dataset
+        mapping = {
+            'train':[self.C.data_path, self.P.train_pre, True],
+            'valid':[self.C.data_path_valid, self.P.test_pre, False],
+            'test' :[self.C.data_path_test, self.P.test_pre, False],
+                   }
+        setupNames = list(set(types) & set(mapping.keys()))
         
-        if flag:
-            print('Preparation Done! Use dataloader.{type}_loader to access each loader.')
+        for name in setupNames:
+            path, preprocess, shuffle = mapping[name]
+            self.loader[name] = self.loader_prepare(MyDataset(path, preprocess), shuffle)
+        
+        if setupNames:
+            print('Preparation Done! Use dataloader.loader[{type}] to access each loader.')
         else:
             print('Error: There is nothing to set up')
 
@@ -54,13 +67,14 @@ class MyDataloader():
             batch_size=self.C.bs,
             num_workers=self.C.nw,
             shuffle=shuffle,
-            pin_memory=self.C.pm,
+            pin_memory=self.C.pm
         )
+
 
 if __name__ == '__main__':
     dataloaders = MyDataloader()
     dataloaders.setup(['test'])
 
-    for x,y in dataloaders.test_loader:
+    for x,y in dataloaders.loader['test']:
         print(x.shape, y.shape)
         break

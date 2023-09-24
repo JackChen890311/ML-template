@@ -4,6 +4,7 @@ class CONSTANT():
     def __init__(self):
         self.epochs = 500
         self.lr = 1e-3
+        self.wd = 1e-5
         self.bs = 32
         self.nw = 8
         self.pm = True
