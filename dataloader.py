@@ -32,7 +32,7 @@ class MyDataset(Dataset):
     
     def __getitem__(self, idx):
         # Return an item pair, e.g. dataset[idx] and its label
-        pass    
+        pass
 
 
 class MyDataloader():
