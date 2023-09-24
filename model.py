@@ -19,7 +19,7 @@ class MyModel(nn.Module):
 
 if __name__ == '__main__':
     C = CONSTANT()
-    model = MyModel()
+    model = MyModel().to(C.device)
     print(model)
     
     dataloaders = MyDataloader()
