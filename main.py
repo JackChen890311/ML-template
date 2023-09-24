@@ -10,6 +10,9 @@ from dataloader import MyDataloader
 from constant import CONSTANT
 
 
+C = CONSTANT()
+
+
 def train(model, train_loader, optimizer, loss_fn):
     model.train()
     total_loss = 0
@@ -149,7 +152,7 @@ def main():
     with open('output/%s/log.txt'%start_time, 'a') as f:
         f.write(f"Ending at epoch {e}. Best valid loss: {round(best_valid_loss, 6)}\n")
 
+
 if __name__ == '__main__':
-    C = CONSTANT()
     main()
 
