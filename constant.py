@@ -14,7 +14,7 @@ class CONSTANT():
         self.verbose = 10
         self.device = device('cuda:0')
 
-        self.data_path = 'data/training'
+        self.data_path_train = 'data/training'
         self.data_path_valid = 'data/validation'
         self.data_path_test = 'data/testing'
 

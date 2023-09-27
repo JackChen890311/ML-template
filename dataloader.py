@@ -46,7 +46,7 @@ class MyDataloader():
         print('Loading Data...')
 
         mapping = {
-            'train':[self.C.data_path, self.P.train_pre, True],
+            'train':[self.C.data_path_train, self.P.train_pre, True],
             'valid':[self.C.data_path_valid, self.P.test_pre, False],
             'test' :[self.C.data_path_test, self.P.test_pre, False],
                    }
