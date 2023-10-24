@@ -106,13 +106,13 @@ def main():
         valid_loss = test(model, dataloaders.loader['test'], loss_fn)
         train_losses.append(train_loss)
         valid_losses.append(valid_loss)
+        
         print(f'Epoch = {e}, Train / Valid Loss = {round(train_loss, 6)} / {round(valid_loss, 6)}')
         scheduler.step()
         
         # Plot loss
         if e % C.verbose == 0:
-            print('Plotting Loss at epoch', e)
-            x_axis = list(range(e))
+            x_axis = list(range(1,1+e))
             config = {
                 'title':'Loss',
                 'xlabel':'Epochs',
@@ -123,11 +123,6 @@ def main():
                 },
                 'savefig':'output/%s/loss.png'%start_time
             }
-            myplot(config)
-
-            config['data']['Train'] = [x_axis[-100:], train_losses[-100:]]
-            config['data']['Valid'] = [x_axis[-100:], valid_losses[-100:]]
-            config['savefig'] = 'output/%s/loss_last100.png'%start_time
             myplot(config)
 
         # Save best model and early stopping
@@ -143,7 +138,7 @@ def main():
         
         # Write log
         with open('output/%s/log.txt'%start_time, 'a') as f:
-            f.write(f"Epoch {e}: Best valid loss: {round(best_valid_loss, 6)}\n")
+            f.write(f"Epoch {e}, Best valid loss: {round(best_valid_loss, 6)}\n")
         with open('output/%s/losses.pickle'%start_time, 'wb') as file:
             pk.dump([train_losses, valid_losses, best_valid_loss], file)
     
