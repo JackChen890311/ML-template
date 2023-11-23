@@ -1,8 +1,9 @@
 import torch.nn as nn
-import torch.nn.functional as F
 
 from constant import CONSTANT
 from dataloader import MyDataloader
+
+C = CONSTANT()
 
 
 class MyModel(nn.Module):
@@ -18,14 +19,13 @@ class MyModel(nn.Module):
 
 
 if __name__ == '__main__':
-    C = CONSTANT()
     model = MyModel().to(C.device)
     print(model)
     
     dataloaders = MyDataloader()
-    dataloaders.setup(['test'])
+    dataloaders.setup(['valid'])
 
-    for x,y in dataloaders.loader['test']:
+    for x,y in dataloaders.loader['valid']:
         x = x.to(C.device)
         yhat = model(x)
         print(x.shape,y.shape)
