@@ -114,15 +114,15 @@ def main():
     start_time_str = str(time.strftime("%Y-%m-%d~%H:%M:%S", time.localtime()))
     os.makedirs('output/%s'%start_time_str, exist_ok=True)
 
-    begin_msg = '===== Begin Training... ====='
+    begin_msg = '==================== Parameter Information ===================='
     const_msg = [f"{key}: {value}" for key, value in vars(C).items()]
     train_msg = [
         'Optimizer:'+str(optimizer),
         'Scheduler:'+str(scheduler),
         'Loss Function:'+str(loss_fn),
-        '\n===== Model Structure =====',
+        '\n==================== Model Structure ====================',
         str(model),
-        '===== Begin Training... ====='
+        '==================== Begin Training... ===================='
     ]
     for msg in begin_msg + const_msg + train_msg:
         message_handler(msg, start_time_str)
